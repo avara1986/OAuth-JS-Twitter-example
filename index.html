@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title></title>
+    <meta content="">
+    <style></style>
+  </head>
+  <body>
+
+    <script type="text/javascript" src="codebird-js/codebird.js"></script>
+
+    <script type="text/javascript">
+        var cb = new Codebird;
+        cb.setConsumerKey("[Consumer Key]", "[Consumer Secret]");
+        console.log(getCookie('oauth_token'));
+        console.log(getCookie('oauth_verifier'));
+        console.log(getCookie('user_id'));
+        user_id = getCookie('user_id');
+        if (user_id.length == 0)
+        cb.__call(
+            "oauth_requestToken",
+            {oauth_callback: "[URL]"},
+            function (reply) {
+                // stores it
+                cb.setToken(reply.oauth_token, reply.oauth_token_secret);
+
+                // gets the authorize screen URL
+                cb.__call(
+                    "oauth_authorize",
+                    {},
+                    function (auth_url) {
+                        window.codebird_auth = window.open(auth_url);
+                    }
+                );
+            }
+        );
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0; i<ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1);
+                if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+
+            }
+            return "";
+        }
+    </script>
+  </body>
+</html>

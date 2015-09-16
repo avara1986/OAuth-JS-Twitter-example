@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title></title>
+    <meta content="">
+    <style></style>
+  </head>
+  <body>
+
+    <script type="text/javascript" src="codebird-js/codebird.js"></script>
+
+    <script type="text/javascript">
+        var cb = new Codebird;
+        cb.setConsumerKey("[Consumer Key]", "[Consumer Secret]");
+
+        var current_url = location.toString();
+        var query       = current_url.match(/\?(.+)$/)[1].split("&");
+        var parameters  = {};
+        var parameter;
+
+        for (var i = 0; i < query.length; i++) {
+            parameter = query[i].split("=");
+            if (parameter.length === 1) {
+                parameter[1] = "";
+            }
+
+            parameters[decodeURIComponent(parameter[0])] = decodeURIComponent(parameter[1]);
+        }
+
+        // check if oauth_verifier is set
+        if (typeof parameters.oauth_verifier !== "undefined") {
+            // assign stored request token parameters to codebird here
+
+            //document.cookie="oauth_token="+parameters.oauth_token;
+            //document.cookie="oauth_verifier="+parameters.oauth_verifier;
+            //console.log(document.cookie);
+            cb.setToken(parameters.oauth_token, parameters.oauth_verifier);
+
+            cb.__call(
+                "oauth_accessToken",
+                {
+                    oauth_verifier: parameters.oauth_verifier
+                },
+                function (reply) {
+                    console.log(reply);
+                    document.cookie="oauth_token="+reply.oauth_token;
+                    document.cookie="oauth_token_secret="+reply.oauth_token_secret;
+                    document.cookie="user_id="+reply.user_id;
+                    cb.setToken(reply.oauth_token, reply.oauth_token_secret);
+                    window.location.href = "index.html";
+                    // if you need to persist the login after page reload,
+                    // consider storing the token in a cookie or HTML5 local storage
+                }
+            );
+        }
+    </script>
+  </body>
+</html>
